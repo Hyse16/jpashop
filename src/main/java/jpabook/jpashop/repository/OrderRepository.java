@@ -27,8 +27,10 @@ public class OrderRepository {
     }
 
     public List<Order> findAllByString(OrderSearch orderSearch) {
-        String jpql = "select o from Order o join o.member m";
+        //language=JPAQL
+        String jpql = "select o From Order o join o.member m";
         boolean isFirstCondition = true;
+//주문 상태 검색
         if (orderSearch.getOrderStatus() != null) {
             if (isFirstCondition) {
                 jpql += " where";
@@ -38,27 +40,16 @@ public class OrderRepository {
             }
             jpql += " o.status = :status";
         }
-
-        if (StringUtils.hasText(orderSearch.getMemberName())) {
-            if (isFirstCondition) {
-                jpql += " where";
-                isFirstCondition = false;
-            } else {
-                jpql += " and";
-            }
-            jpql += " m.name like :name";
-        }
-        TypedQuery<Order> query = em.createQuery(jpql, Order.class)
-                .setMaxResults(1000);
+        TypedQuery<Order> query = em.createQuery(jpql, Order.class) .setMaxResults(1000); //최대 1000건
         if (orderSearch.getOrderStatus() != null) {
             query = query.setParameter("status", orderSearch.getOrderStatus());
         }
         if (StringUtils.hasText(orderSearch.getMemberName())) {
             query = query.setParameter("name", orderSearch.getMemberName());
         }
-
         return query.getResultList();
     }
+
 
     public List<Order> findAllByCriteria(OrderSearch orderSearch) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
